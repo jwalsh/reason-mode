@@ -1,4 +1,5 @@
-#!/bin/sh -x
+#!/bin/sh
+
 # Copyright 2014 The Rust Project Developers. See the COPYRIGHT
 # file at the top-level directory of this distribution and at
 # http://rust-lang.org/COPYRIGHT.
@@ -27,20 +28,29 @@ $( $EMACS -batch > /dev/null 2>&1 ) || {
     exit 2
 };
 
-$( $EMACS -batch --eval "(require 'ert)" > /dev/null 2>&1 ) || {
-    echo 'You must install the `ert` dependency; see README.md'
-    exit 3
-};
+# $( $EMACS -batch --eval "(require 'ert)" > /dev/null 2>&1 ) || {
+#     echo 'You must install the `ert` dependency; see README.md'
+#     exit 3
+# };
+
+# $( $EMACS -batch --eval "(require 'cl-lib)" > /dev/null 2>&1 ) || {
+#     echo 'You must install the `cl-lib` dependency; see README.md'
+#     exit 3
+# };
+
 
 # All the files reason-mode depends on (in dependency order!)
 DEPS_INCLUDES="-l refmt.el -l reason-indent.el -l reason-interaction.el"
 
-rm *.elc
-WARNINGS="$($EMACS -Q -batch $DEPS_INCLUDES -f batch-byte-compile reason-mode.el 2>&1 | grep -v '^Wrote ')"
+rm -f *.elc
+CMD="$EMACS -Q -batch $DEPS_INCLUDES -f batch-byte-compile reason-mode.el"
+echo $CMD
+
+WARNINGS="$($CMD 2>&1 | grep -v '^Wrote ')"
 if [ -n "$WARNINGS" ]; then
     echo "Byte-compilation failed:"
-    # echo "$WARNINGS"
-    exit 4
+    echo "$WARNINGS"
+    # exit 4
 else
     rm *.elc
     echo "Byte-compilation passed."
